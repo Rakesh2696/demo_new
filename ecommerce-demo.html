@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Capsule — Demo Store</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Work+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ivory:#F6F1E7;
+    --ivory-deep:#EEE5D3;
+    --ink:#2A241D;
+    --espresso:#4B3B2E;
+    --gold:#B4914F;
+    --sage:#77816B;
+    --line:#DCD1B9;
+    --card:#FFFDF8;
+    --danger:#9C4A3E;
+  }
+  *{box-sizing:border-box;}
+  html{background:var(--ivory-deep);}
+  body{
+    margin:0;
+    min-height:100vh;
+    color:var(--ink);
+    font-family:'Work Sans',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -5%, #FFFCF5 0%, transparent 60%),
+      radial-gradient(ellipse 900px 600px at 100% 10%, #F9E9C9 0%, transparent 55%),
+      linear-gradient(180deg, var(--ivory) 0%, var(--ivory-deep) 100%);
+    background-attachment:fixed;
+    position:relative;
+  }
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    opacity:0.05;
+    background-image:repeating-linear-gradient(45deg, #4B3B2E 0, #4B3B2E 1px, transparent 1px, transparent 14px);
+    z-index:0;
+  }
+  header.top, .wrap{ position:relative; z-index:1; }
+  .wrap{max-width:920px;margin:0 auto;padding:0 24px 80px;}
+  header.top{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:28px 24px 20px;max-width:920px;margin:0 auto;
+    border-bottom:1px solid var(--line);
+  }
+  .brand{
+    font-family:'Fraunces',serif;font-size:22px;letter-spacing:0.04em;
+    display:flex;align-items:baseline;gap:8px;
+  }
+  .brand small{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--sage);letter-spacing:0.15em;}
+  nav.tabs{display:flex;gap:18px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;}
+  nav.tabs button{
+    background:none;border:none;cursor:pointer;color:var(--espresso);opacity:0.55;
+    padding:6px 0;border-bottom:2px solid transparent;
+  }
+  nav.tabs button.active{opacity:1;border-bottom:2px solid var(--gold);}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.18em;
+    text-transform:uppercase;color:var(--sage);margin:40px 0 6px;
+  }
+  h1.page-title{
+    font-family:'Fraunces',serif;font-weight:600;font-size:34px;margin:0 0 6px;
+  }
+  p.sub{color:#6b6459;max-width:520px;line-height:1.55;margin:0 0 34px;font-size:15px;}
+
+  /* ---- Product grid: garment-tag cards ---- */
+  .rail{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;}
+  @media (max-width:720px){.rail{grid-template-columns:1fr;}}
+  .tag-card{
+    position:relative;background:var(--card);border:1px solid var(--line);
+    border-radius:2px;padding:22px 18px 20px;cursor:pointer;
+    transition:transform .18s ease, box-shadow .18s ease;
+  }
+  .tag-card:hover{transform:translateY(-3px);box-shadow:0 14px 28px rgba(75,59,46,0.14);}
+  .tag-card::before{
+    content:"";position:absolute;top:14px;left:50%;transform:translateX(-50%);
+    width:14px;height:14px;border-radius:50%;background:var(--ivory);
+    border:1px solid var(--line);
+  }
+  .tag-num{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--gold);
+    letter-spacing:0.1em;margin-top:16px;display:block;
+  }
+  .swatch{
+    height:140px;border-radius:2px;margin:14px 0 16px;
+    display:flex;align-items:center;justify-content:center;
+    border:1px dashed var(--line);
+  }
+  .tag-card h3{font-family:'Fraunces',serif;font-size:19px;margin:0 0 4px;font-weight:600;}
+  .tag-card .desc{font-size:13px;color:#6b6459;line-height:1.5;margin:0 0 14px;min-height:38px;}
+  .price-row{display:flex;justify-content:space-between;align-items:center;border-top:1px dashed var(--line);padding-top:12px;}
+  .price{font-family:'IBM Plex Mono',monospace;font-size:15px;}
+  .stitch{border:none;border-top:1px dashed var(--line);margin:36px 0;}
+
+  /* ---- buttons ---- */
+  .btn{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;
+    border:1px solid var(--espresso);background:var(--espresso);color:var(--ivory);
+    padding:11px 20px;cursor:pointer;border-radius:2px;transition:opacity .15s;
+  }
+  .btn:hover{opacity:0.85;}
+  .btn.outline{background:transparent;color:var(--espresso);}
+  .btn.small{padding:7px 14px;font-size:11px;}
+  .btn.full{width:100%;}
+  .btn:disabled{opacity:0.4;cursor:not-allowed;}
+  .link-back{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;
+    color:var(--sage);background:none;border:none;cursor:pointer;padding:0;margin-bottom:26px;display:inline-flex;align-items:center;gap:6px;
+  }
+
+  /* ---- detail view ---- */
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;}
+  @media (max-width:720px){.detail-grid{grid-template-columns:1fr;}}
+  .detail-swatch{height:360px;border:1px dashed var(--line);border-radius:2px;display:flex;align-items:center;justify-content:center;}
+  .size-row{display:flex;gap:8px;margin:16px 0 26px;}
+  .size-opt{
+    width:44px;height:44px;border:1px solid var(--line);border-radius:2px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    font-family:'IBM Plex Mono',monospace;font-size:12px;background:var(--card);
+  }
+  .size-opt.selected{border-color:var(--espresso);background:var(--espresso);color:var(--ivory);}
+
+  /* ---- forms ---- */
+  .field{margin-bottom:18px;}
+  .field label{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--sage);margin-bottom:7px;}
+  .field input, .field select{
+    width:100%;padding:12px 14px;border:1px solid var(--line);border-radius:2px;
+    font-family:'Work Sans',sans-serif;font-size:14px;background:var(--card);color:var(--ink);
+  }
+  .field input:focus, .field select:focus{outline:2px solid var(--gold);outline-offset:1px;}
+  .form-card{background:var(--card);border:1px solid var(--line);border-radius:2px;padding:32px;max-width:440px;}
+  .otp-boxes{display:flex;gap:10px;margin:6px 0 22px;}
+  .otp-boxes input{
+    width:48px;height:52px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:20px;
+    border:1px solid var(--line);border-radius:2px;
+  }
+  .hint{font-size:12px;color:var(--sage);margin-top:-8px;margin-bottom:20px;font-family:'IBM Plex Mono',monospace;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+
+  /* ---- summary panel ---- */
+  .summary{background:var(--card);border:1px solid var(--line);border-radius:2px;padding:22px;margin-top:26px;}
+  .summary .line{display:flex;justify-content:space-between;font-size:13px;padding:6px 0;color:#6b6459;}
+  .summary .line.total{border-top:1px dashed var(--line);margin-top:8px;padding-top:12px;font-family:'IBM Plex Mono',monospace;color:var(--ink);font-size:14px;}
+
+  .pay-opts{display:grid;gap:10px;margin-bottom:24px;}
+  .pay-opt{
+    border:1px solid var(--line);border-radius:2px;padding:14px 16px;cursor:pointer;
+    display:flex;justify-content:space-between;align-items:center;font-size:14px;
+  }
+  .pay-opt.selected{border-color:var(--espresso);background:#F3EEE5;}
+  .pay-opt span.tag{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--sage);}
+
+  /* ---- confirmation ---- */
+  .confirm-box{text-align:center;padding:50px 20px;}
+  .confirm-mark{
+    width:56px;height:56px;border-radius:50%;border:1px solid var(--sage);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 20px;
+    font-family:'Fraunces',serif;font-size:26px;color:var(--sage);
+  }
+  .order-id{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--gold);letter-spacing:0.05em;}
+
+  /* ---- admin ---- */
+  table.admin{width:100%;border-collapse:collapse;font-size:13px;}
+  table.admin th{
+    font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;
+    text-align:left;color:var(--sage);border-bottom:1px solid var(--line);padding:10px 8px;
+  }
+  table.admin td{padding:12px 8px;border-bottom:1px solid var(--line);}
+  .status-pill{
+    font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.05em;text-transform:uppercase;
+    padding:3px 9px;border-radius:20px;background:#EDE7D9;color:var(--espresso);
+  }
+  .empty{color:#9a9186;font-size:13px;padding:40px 0;text-align:center;font-family:'IBM Plex Mono',monospace;}
+
+  .badge-demo{
+    position:fixed;bottom:16px;right:16px;background:var(--ink);color:var(--ivory);
+    font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:0.08em;text-transform:uppercase;
+    padding:8px 12px;border-radius:20px;opacity:0.75;
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand">THE CAPSULE <small>DEMO STORE</small></div>
+  <nav class="tabs">
+    <button class="tab-btn active" data-tab="shop" onclick="goTab('shop')">Shop</button>
+    <button class="tab-btn" data-tab="admin" onclick="goTab('admin')">Admin Panel</button>
+  </nav>
+</header>
+
+<div class="wrap">
+
+  <!-- ============ PRODUCT LISTING ============ -->
+  <section id="view-list">
+    <div class="eyebrow">Season 01 — Three Pieces</div>
+    <h1 class="page-title">The Capsule Edit</h1>
+    <p class="sub">Three considered pieces, cut for everyday wear. Browse the edit, check sizing, and check out — verified by OTP, same as it'll work live.</p>
+
+    <div class="rail" id="product-rail"></div>
+  </section>
+
+  <!-- ============ PRODUCT DETAIL ============ -->
+  <section id="view-detail" style="display:none;">
+    <button class="link-back" onclick="goTab('shop')">&larr; Back to the edit</button>
+    <div class="detail-grid">
+      <div class="detail-swatch" id="detail-swatch"></div>
+      <div>
+        <div class="eyebrow" id="detail-num"></div>
+        <h1 class="page-title" id="detail-name" style="font-size:28px;"></h1>
+        <p class="sub" id="detail-desc" style="margin-bottom:18px;"></p>
+        <div class="price" style="font-size:20px;" id="detail-price"></div>
+
+        <div style="margin-top:22px;">
+          <label style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--sage);">Size</label>
+          <div class="size-row" id="size-row"></div>
+        </div>
+
+        <button class="btn full" id="buy-now-btn" onclick="startCheckout()">Buy Now</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ OTP VERIFICATION ============ -->
+  <section id="view-otp" style="display:none;">
+    <button class="link-back" onclick="goTab('shop')">&larr; Cancel</button>
+    <div class="eyebrow">Step 01 of 03</div>
+    <h1 class="page-title" style="font-size:26px;">Verify your mobile number</h1>
+    <p class="sub">We'll text a one-time code so we can confirm delivery updates.</p>
+
+    <div class="form-card">
+      <div id="otp-step-phone">
+        <div class="field">
+          <label>Mobile Number</label>
+          <input type="tel" id="phone-input" placeholder="e.g. 98765 43210" maxlength="10">
+        </div>
+        <button class="btn full" onclick="sendOtp()">Send OTP</button>
+      </div>
+
+      <div id="otp-step-code" style="display:none;">
+        <label style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--sage);">Enter 4-digit code</label>
+        <div class="otp-boxes">
+          <input maxlength="1" oninput="otpMove(this,0)">
+          <input maxlength="1" oninput="otpMove(this,1)">
+          <input maxlength="1" oninput="otpMove(this,2)">
+          <input maxlength="1" oninput="otpMove(this,3)">
+        </div>
+        <div class="hint" id="otp-demo-hint"></div>
+        <button class="btn full" onclick="verifyOtp()">Verify &amp; Continue</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ SHIPPING ============ -->
+  <section id="view-shipping" style="display:none;">
+    <button class="link-back" onclick="goTab('shop')">&larr; Cancel</button>
+    <div class="eyebrow">Step 02 of 03</div>
+    <h1 class="page-title" style="font-size:26px;">Shipping address</h1>
+    <p class="sub">Where should we send your order?</p>
+
+    <div class="form-card" style="max-width:480px;">
+      <div class="field"><label>Full Name</label><input id="ship-name" placeholder="Full name"></div>
+      <div class="field"><label>Address Line</label><input id="ship-addr" placeholder="House no, street, area"></div>
+      <div class="row2">
+        <div class="field"><label>City</label><input id="ship-city" placeholder="City"></div>
+        <div class="field"><label>Pincode</label><input id="ship-pin" placeholder="Pincode" maxlength="6"></div>
+      </div>
+      <button class="btn full" onclick="goPayment()">Continue to Payment</button>
+    </div>
+  </section>
+
+  <!-- ============ PAYMENT ============ -->
+  <section id="view-payment" style="display:none;">
+    <button class="link-back" onclick="goTab('shop')">&larr; Cancel</button>
+    <div class="eyebrow">Step 03 of 03</div>
+    <h1 class="page-title" style="font-size:26px;">Payment</h1>
+    <p class="sub">Select a payment method to complete your order.</p>
+
+    <div style="max-width:480px;">
+      <div class="pay-opts" id="pay-opts">
+        <div class="pay-opt" data-method="UPI" onclick="selectPay(this)"><span>UPI</span><span class="tag">Instant</span></div>
+        <div class="pay-opt" data-method="Card" onclick="selectPay(this)"><span>Credit / Debit Card</span><span class="tag">Visa · MC · RuPay</span></div>
+        <div class="pay-opt" data-method="COD" onclick="selectPay(this)"><span>Cash on Delivery</span><span class="tag">Pay at doorstep</span></div>
+      </div>
+
+      <div class="summary" id="pay-summary"></div>
+
+      <button class="btn full" style="margin-top:20px;" id="pay-btn" onclick="placeOrder()" disabled>Pay &amp; Place Order</button>
+    </div>
+  </section>
+
+  <!-- ============ CONFIRMATION ============ -->
+  <section id="view-confirm" style="display:none;">
+    <div class="confirm-box">
+      <div class="confirm-mark">✓</div>
+      <div class="eyebrow" style="text-align:center;">Order Confirmed</div>
+      <h1 class="page-title" style="font-size:28px;">Thank you — it's on its way to being made.</h1>
+      <p class="order-id" id="confirm-order-id"></p>
+      <div class="summary" style="text-align:left;max-width:420px;margin:26px auto 0;" id="confirm-summary"></div>
+      <button class="btn outline" style="margin-top:28px;" onclick="goTab('shop')">Back to Shop</button>
+    </div>
+  </section>
+
+  <!-- ============ ADMIN PANEL ============ -->
+  <section id="view-admin" style="display:none;">
+    <div class="eyebrow">Internal</div>
+    <h1 class="page-title" style="font-size:26px;">Orders</h1>
+    <p class="sub">Every order placed in this demo session appears here — mirroring the admin panel in the live build.</p>
+    <div id="admin-table-wrap"></div>
+  </section>
+
+</div>
+
+<div class="badge-demo">Interactive demo · sample data only</div>
+
+<script>
+const PRODUCTS = [
+  {
+    id:1, num:"01", name:"Linen Wrap Dress", price:2450,
+    desc:"Midweight linen, relaxed drape, tie waist. Made for slow mornings.",
+    color:"#C9BBA0", sizes:["XS","S","M","L"]
+  },
+  {
+    id:2, num:"02", name:"Tailored Wool Coat", price:6200,
+    desc:"Structured shoulder, single-breasted, wool-blend. Built for transitional weather.",
+    color:"#5B5044", sizes:["S","M","L","XL"]
+  },
+  {
+    id:3, num:"03", name:"Silk Scarf Set", price:1350,
+    desc:"Two hand-rolled silk scarves in complementary seasonal tones.",
+    color:"#8B6F52", sizes:["One Size"]
+  },
+];
+
+let state = {
+  currentProduct:null,
+  selectedSize:null,
+  otpSent:null,
+  phone:"",
+  shipping:{},
+  payMethod:null,
+  orders:[]
+};
+
+function renderRail(){
+  const rail = document.getElementById('product-rail');
+  rail.innerHTML = PRODUCTS.map(p => `
+    <div class="tag-card" onclick="openDetail(${p.id})">
+      <span class="tag-num">${p.num} / 03</span>
+      <div class="swatch" style="background:${p.color}22;"></div>
+      <h3>${p.name}</h3>
+      <div class="desc">${p.desc}</div>
+      <div class="price-row">
+        <span class="price">₹${p.price.toLocaleString('en-IN')}</span>
+        <button class="btn small outline" onclick="event.stopPropagation(); openDetail(${p.id})">View</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function hideAll(){
+  ['view-list','view-detail','view-otp','view-shipping','view-payment','view-confirm','view-admin']
+    .forEach(id => document.getElementById(id).style.display='none');
+}
+
+function goTab(tab){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.tab-btn[data-tab="${tab}"]`).classList.add('active');
+  hideAll();
+  if(tab==='shop'){ document.getElementById('view-list').style.display='block'; }
+  if(tab==='admin'){ document.getElementById('view-admin').style.display='block'; renderAdmin(); }
+}
+
+function openDetail(id){
+  const p = PRODUCTS.find(x=>x.id===id);
+  state.currentProduct = p;
+  state.selectedSize = null;
+  hideAll();
+  document.getElementById('view-detail').style.display='block';
+  document.getElementById('detail-swatch').style.background = p.color+'22';
+  document.getElementById('detail-num').textContent = `Piece ${p.num} of 03`;
+  document.getElementById('detail-name').textContent = p.name;
+  document.getElementById('detail-desc').textContent = p.desc;
+  document.getElementById('detail-price').textContent = `₹${p.price.toLocaleString('en-IN')}`;
+  document.getElementById('size-row').innerHTML = p.sizes.map(s=>`<div class="size-opt" onclick="pickSize(this,'${s}')">${s}</div>`).join('');
+  document.getElementById('buy-now-btn').disabled = p.sizes.length>1;
+}
+
+function pickSize(el, s){
+  document.querySelectorAll('.size-opt').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+  state.selectedSize = s;
+  document.getElementById('buy-now-btn').disabled = false;
+}
+
+function startCheckout(){
+  hideAll();
+  document.getElementById('view-otp').style.display='block';
+  document.getElementById('otp-step-phone').style.display='block';
+  document.getElementById('otp-step-code').style.display='none';
+  document.getElementById('phone-input').value='';
+}
+
+function sendOtp(){
+  const phone = document.getElementById('phone-input').value.trim();
+  if(phone.length!==10 || isNaN(phone)){
+    alert('Enter a valid 10-digit mobile number.');
+    return;
+  }
+  state.phone = phone;
+  state.otpSent = String(Math.floor(1000+Math.random()*9000));
+  document.getElementById('otp-step-phone').style.display='none';
+  document.getElementById('otp-step-code').style.display='block';
+  document.getElementById('otp-demo-hint').textContent = `Demo mode — your code is ${state.otpSent} (an SMS gateway sends this live)`;
+  document.querySelectorAll('.otp-boxes input').forEach(i=>i.value='');
+}
+
+function otpMove(el, idx){
+  const boxes = document.querySelectorAll('.otp-boxes input');
+  if(el.value && idx < boxes.length-1){ boxes[idx+1].focus(); }
+}
+
+function verifyOtp(){
+  const boxes = document.querySelectorAll('.otp-boxes input');
+  const entered = Array.from(boxes).map(b=>b.value).join('');
+  if(entered.length<4){ alert('Enter all 4 digits.'); return; }
+  if(entered !== state.otpSent){ alert('Incorrect code. Check the hint below the field.'); return; }
+  hideAll();
+  document.getElementById('view-shipping').style.display='block';
+}
+
+function goPayment(){
+  const name = document.getElementById('ship-name').value.trim();
+  const addr = document.getElementById('ship-addr').value.trim();
+  const city = document.getElementById('ship-city').value.trim();
+  const pin = document.getElementById('ship-pin').value.trim();
+  if(!name||!addr||!city||!pin){ alert('Please fill every field.'); return; }
+  state.shipping = {name, addr, city, pin};
+  hideAll();
+  document.getElementById('view-payment').style.display='block';
+  renderPaySummary();
+}
+
+function renderPaySummary(){
+  const p = state.currentProduct;
+  document.getElementById('pay-summary').innerHTML = `
+    <div class="line"><span>${p.name} (${state.selectedSize})</span><span>₹${p.price.toLocaleString('en-IN')}</span></div>
+    <div class="line"><span>Shipping</span><span>Free</span></div>
+    <div class="line total"><span>Total</span><span>₹${p.price.toLocaleString('en-IN')}</span></div>
+  `;
+}
+
+function selectPay(el){
+  document.querySelectorAll('.pay-opt').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+  state.payMethod = el.dataset.method;
+  document.getElementById('pay-btn').disabled = false;
+}
+
+function placeOrder(){
+  const p = state.currentProduct;
+  const orderId = 'TC-' + Math.floor(100000+Math.random()*900000);
+  const order = {
+    id: orderId,
+    product: p.name,
+    size: state.selectedSize,
+    price: p.price,
+    phone: state.phone,
+    shipping: state.shipping,
+    payMethod: state.payMethod,
+    date: new Date().toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'})
+  };
+  state.orders.unshift(order);
+
+  hideAll();
+  document.getElementById('view-confirm').style.display='block';
+  document.getElementById('confirm-order-id').textContent = `Order ${orderId}`;
+  document.getElementById('confirm-summary').innerHTML = `
+    <div class="line"><span>${order.product} (${order.size})</span><span>₹${order.price.toLocaleString('en-IN')}</span></div>
+    <div class="line"><span>Ship to</span><span>${order.shipping.city}, ${order.shipping.pin}</span></div>
+    <div class="line"><span>Payment</span><span>${order.payMethod}</span></div>
+    <div class="line total"><span>Total Paid</span><span>₹${order.price.toLocaleString('en-IN')}</span></div>
+  `;
+}
+
+function renderAdmin(){
+  const wrap = document.getElementById('admin-table-wrap');
+  if(state.orders.length===0){
+    wrap.innerHTML = `<div class="empty">No orders yet — place a demo order from the Shop tab to see it appear here.</div>`;
+    return;
+  }
+  wrap.innerHTML = `
+    <table class="admin">
+      <thead><tr><th>Order ID</th><th>Product</th><th>Customer</th><th>Mobile</th><th>Amount</th><th>Payment</th><th>Status</th></tr></thead>
+      <tbody>
+        ${state.orders.map(o=>`
+          <tr>
+            <td>${o.id}</td>
+            <td>${o.product} (${o.size})</td>
+            <td>${o.shipping.name}</td>
+            <td>${o.phone}</td>
+            <td>₹${o.price.toLocaleString('en-IN')}</td>
+            <td>${o.payMethod}</td>
+            <td><span class="status-pill">Confirmed</span></td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+}
+
+renderRail();
+</script>
+
+</body>
+</html>
